@@ -1,29 +1,50 @@
 :root{
-    --bg-color: #181A1B;
-    --font-color: #D1CDC8;
+    --text: #19059d;
 }
 
 header {
-    border-radius: 0 0 4px 4px;
-    background-image: linear-gradient(to bottom right, rgba(16, 200, 213, 0.988), rgba(23, 12, 235, 0.884));
+    border-radius: 50px; 
+    background-image: linear-gradient(rgba(16, 200, 213, 0.988), rgb(238, 238, 3));
+    color: var(--text);
+    margin-top: 10px;
 }
 
 body {
     height: 100%;
     background-color: #0aa6f4;
-    color: var(--font-color);
+    color: var(--text);
+}
+
+.btn {
+    color: var(--text)
 }
 
 .fas {
     margin-left: .5rem;
 }
 
-#uv-index {
-    border-radius: 4px;
-    padding: .2rem .6rem;
-    margin-left: .2rem;
+.city {
+    text-align: center;
+}
+
+.condition {
+    text-align: center;
+}
+
+.forcast-header {
+    text-align: center;
+}
+
+.day {
+    background-color: rgb(4, 165, 165);
 }
 
 .card {
     padding: 1%;
+}
+
+#uv-index {
+    border-radius: 4px;
+    padding: .2rem .6rem;
+    margin-left: .2rem;
 }
