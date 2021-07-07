@@ -1,0 +1,29 @@
+:root{
+    --bg-color: #181A1B;
+    --font-color: #D1CDC8;
+}
+
+header {
+    border-radius: 0 0 4px 4px;
+    background-image: linear-gradient(to bottom right, rgba(16, 200, 213, 0.988), rgba(23, 12, 235, 0.884));
+}
+
+body {
+    height: 100%;
+    background-color: #0aa6f4;
+    color: var(--font-color);
+}
+
+.fas {
+    margin-left: .5rem;
+}
+
+#uv-index {
+    border-radius: 4px;
+    padding: .2rem .6rem;
+    margin-left: .2rem;
+}
+
+.card {
+    padding: 1%;
+}
