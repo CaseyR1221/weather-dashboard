@@ -1,131 +1,128 @@
-
-var searchBtn = document.querySelector('.searchBtn');
-var clearBtn = document.querySelector('.clearBtn');
-var locateBtn = document.querySelector('.locateBtn');
+let searchBtn = document.querySelector('.searchBtn');
+let clearBtn = document.querySelector('.clearBtn');
+let locateBtn = document.querySelector('.locateBtn');
 // weatherInfo holds the JSON response from the weather API
-var weatherInfo, cityName, historyBtn;
-var historyEl = document.querySelector("#history");
-var toggle = false;
-var searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
-var input = document.getElementById("search-input");
-init();
+let weatherInfo, cityName, historyBtn;
+let historyEl = document.querySelector("#history"); 
+let toggle = false;
+let searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
+let input = document.getElementById("search-input");
 
-function init (){
+const init = () => {
     // try to autopopulate current weather when user arrives if they allow location access
     // better ux than blank site waiting to be filled with info
     getCurrentLocation();
     getSearchHistory();
 };
 
-function getSearchHistory () {
-    if (searchHistory == null){
-        console.log("There is no search history data in local storage, creating a blank array");
-        searchHistory = [];
-        }
-    // if there is an array, run the function
-     else{
-            handleFillHistory();
-        }
-};
-
-function handleFillHistory (){
+const handleFillHistory = () => {
     for (let i = 0; i < searchHistory.length && i < 8; i++) {
-        var buttonDiv = document.createElement("div")
-        var buttonEl = document.createElement("button");
+        let buttonDiv = document.createElement("div")
+        let buttonEl = document.createElement("button");
+
         buttonDiv.classList.add("d-grid", "mt-2");
+
         buttonEl.classList.add("btn", "btn-secondary", "historyBtn");
         buttonEl.dataset.city = searchHistory[i];
-        // TODO capitalize every word here for user readability
         buttonEl.textContent = searchHistory[i];
+
         historyEl.append(buttonDiv);
+
         buttonDiv.append(buttonEl);
-    }
-    historyBtn = document.querySelector('.historyBtn');
-    
+    } 
+    historyBtn = document.querySelector('.historyBtn');   
 };
 
-function handleAppendSingle(searchInput){
-    var buttonDiv = document.createElement("div")
-    var buttonEl = document.createElement("button");
+const getSearchHistory = () => {
+    if(searchHistory == null) {
+        console.log("There is no search history data in local storage, creating a blank array");
+        searchHistory = [];
+    }
+    // if there is an array, run the function
+    else {
+        handleFillHistory();
+    }
+};
+
+const handleAppendSingle = (searchInput) => {
+    let buttonDiv = document.createElement("div")
+    let buttonEl = document.createElement("button");
+
     buttonDiv.classList.add("d-grid", "mt-2");
+
     buttonEl.classList.add("btn", "btn-secondary", "historyBtn");
     buttonEl.dataset.city = searchInput;
     buttonEl.textContent = searchInput;
 
-    if (searchHistory.length >= 8){
-        // add button to the top
+    if (searchHistory.length >= 8) {
         historyEl.prepend(buttonDiv);
         buttonDiv.prepend(buttonEl);
-        // remove last search history button to keep max 8 at all times
+        // keep max searches at 8 at all times
         historyEl.removeChild(historyEl.lastElementChild);
     }
     else {
-        // add button to bottom
         historyEl.append(buttonDiv);
         buttonDiv.append(buttonEl);
     }
 }
 
-function handleSearchHistoryClick (event){
-   // get button clicked
-   var buttonClicked = event.target;
-   // get data-city of clicked button
-   var searchHistoryInput = buttonClicked.dataset.city;
-   // if they clicked an actual button
+const handleSearchHistoryClick = (event) => {
+   // button clicked
+   let clicked = event.target;
+   let searchHistoryInput = clicked.dataset.city;
+   // if they actually clicked on a button for a past search
    if (searchHistoryInput !== undefined) {
        getCoordinates(searchHistoryInput);
    }
 };
 
-function handleSearch (){
+const handleSearch = () => {
     // if searchbox is not empty
-    var searchInput = document.querySelector('#search-input').value.trim();
+    let searchInput = document.querySelector('#search-input').value.trim();
+    // if user entered a city
     if (searchInput != ""){
-        // get the city input
+        // get the input
         getCoordinates(searchInput);
-        // reset input text on search
+        // reset input text on search so that it becomes blank again
         input.value = "";
     }
-    // searchbox is empty
     else {
-        alert('Enter a city')
-    }
-    
+        alert('You must enter a valid city!')
+    }   
 };
 
-function getCoordinates(searchInput){
-    var lat, lon;
-    var coordinateUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + searchInput + "&appid=" + key;
-// get lat and long coordinates of city from this api call
+const getCoordinates = (searchInput) => {
+    let lat; 
+    let lon;
+    let coordinateUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + searchInput + "&appid=" + key;
+    // returns the coordinates of city
     fetch(coordinateUrl)
-  .then(function (response) {
-    if (response.status == 404){
-        // tell user the city that they typed was not found
-        //TODO make this a modal
-        alert("No city named " + searchInput + " found.")
-        return;
-    }
-    else{
-        return response.json();
-    }
-  })
-  // go into returned object and pull the lat and long, set them to variables
-  .then(function (data) {
-    lat = data.coord.lat;
-    lon = data.coord.lon;
-    cityName = data.name;
-    // pass lat and lon for next api call
-    getWeather(lat, lon);
-    searchInput = capitalFormat(searchInput);
-    // since request was successful and city was found, add to search history
-    // ********* ADD TO SEARCH HISTORY ************ //
-    // if the search is already in the search history, don't add it
-    if (searchHistory.includes(searchInput)){
-        // do nothing
-    }
-    // if city is not in the search history, push this search to the array
-    else {
-            if (searchHistory.length >= 8){
+    .then(function (response) {
+        if (response.status == 404){
+            // tell user the city that they typed was not found
+            //TODO make this a modal
+            alert("No city named " + searchInput + " found.")
+            return;
+        }
+        else {
+            return response.json();
+        }
+    })
+    // go into returned object and pull the lat and long, set them to variables
+    .then(function (data) {
+        lat = data.coord.lat;
+        lon = data.coord.lon;
+        cityName = data.name;
+
+        getWeather(lat, lon);
+        searchInput = capitalFormat(searchInput);
+        // if the search is already in the search history, don't add it
+        if (searchHistory.includes(searchInput)){
+            continue;
+        }
+        // if city is not in the search history, push this search to the array
+        else {
+            if (searchHistory.length >= 8) {
                 // add item to beginning of saved array
                 searchHistory.unshift(searchInput);
                 // remove last item from array
@@ -135,14 +132,11 @@ function getCoordinates(searchInput){
                 // add item to end of saved array
                 searchHistory.push(searchInput);
             }
-           // new function to add a single element so that the whole list array doesn't get rewritten to page
-           handleAppendSingle(searchInput);
-       }
-   //write event array to local storage
-   localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
-
-  });
-  
+            handleAppendSingle(searchInput);
+         }
+        // write to local storage
+        localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+    }); 
 };
 
 function getWeather (lat, lon){
