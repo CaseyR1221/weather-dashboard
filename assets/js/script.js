@@ -9,10 +9,19 @@ let searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
 let input = document.getElementById("search-input");
 
 const init = () => {
-    // try to autopopulate current weather when user arrives if they allow location access
-    // better ux than blank site waiting to be filled with info
     getCurrentLocation();
     getSearchHistory();
+};
+
+const getSearchHistory = () => {
+    if(searchHistory == null) {
+        console.log("There is no search history data in local storage, creating a blank array");
+        searchHistory = [];
+    }
+    // if there is an array, run the function
+    else {
+        handleFillHistory();
+    }
 };
 
 const handleFillHistory = () => {
@@ -31,17 +40,6 @@ const handleFillHistory = () => {
         buttonDiv.append(buttonEl);
     } 
     historyBtn = document.querySelector('.historyBtn');   
-};
-
-const getSearchHistory = () => {
-    if(searchHistory == null) {
-        console.log("There is no search history data in local storage, creating a blank array");
-        searchHistory = [];
-    }
-    // if there is an array, run the function
-    else {
-        handleFillHistory();
-    }
 };
 
 const handleAppendSingle = (searchInput) => {
@@ -228,7 +226,6 @@ const fillForecastData = () => {
             humidityEl.remove();
         }
     }
-
     for(let i = 0; i < forecastEL.children.length; i++) {
         let tempEl = document.createElement("div");
         let windEl = document.createElement("div");
@@ -251,7 +248,6 @@ const fillForecastData = () => {
         else {
             dateEl.innerText = timeConverter(unixDate);
         }
-
         iconEl.innerHTML = '<img src=' + iconUrl + ">";
         tempEl.innerText = "Temp: " + Math.round(weatherInfo.daily[i+1].temp.day) + "\xB0 F";
         windEl.innerText = "Wind: " + Math.round(weatherInfo.daily[i+1].wind_speed) + " MPH";
@@ -268,35 +264,35 @@ const fillForecastData = () => {
     }
 };
 
-// convert unix timestamp from API into other arbitrary human time
-function timeConverter(UNIX_timestamp){
-    var a = new Date(UNIX_timestamp * 1000);
-    var year = a.getFullYear();
-    var month = a.getMonth()+1;
-    var date = a.getDate();
-    var formattedDate = month + '/' + date + '/' + year;
-    return formattedDate;
+// convert unix timestamp 
+const timeConverter = (UNIX_timestamp) => {
+    let x = new Date(UNIX_timestamp * 1000);
+    let year = x.getFullYear();
+    let month = x.getMonth()+1;
+    let date = x.getDate();
+    let dateFormat= month + '/' + date + '/' + year;
+    return dateFormat;
   }
 // Get current location from browser
-function getCurrentLocation (){
+const getCurrentLocation = () => {
     console.log("Requesting device location");
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
 }
 // grab coords from current location if given permission & location is available
-function successCallback (position) {
-    var lat = parseFloat(position.coords.latitude);
-    var lon = parseFloat(position.coords.longitude);
-    // make lat and long 4 decimals for the api to work
+const successCallback = (position) => {
+    let lat = parseFloat(position.coords.latitude);
+    let lon = parseFloat(position.coords.longitude);
+    // make lat and long 4 decimals to plug into the API
     lat = lat.toFixed(4);
     lon = lon.toFixed(4);
-    // get city name based on current location
+
     useCurrentLocation(lat, lon);
 }
 // handle errors for get current location
-function errorCallback (error) {
-    var errorDiv = document.querySelector(".error")
-    switch(error.code) {
+const errorCallback = (error) => {
+    let errorDiv = document.querySelector(".error");
 
+    switch(error.code) {
         case error.PERMISSION_DENIED:
           errorDiv.innerHTML = "User denied the request for Geolocation."
           break;
@@ -309,36 +305,33 @@ function errorCallback (error) {
         case error.UNKNOWN_ERROR:
           errorDiv.innerHTML = "An unknown error occurred."
           break;
-}
+    }
 };
 
-function useCurrentLocation(lat, lon){
+const useCurrentLocation = (lat, lon) => {
     apiUrl = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=" + key;
-    // make api call
+
     fetch(apiUrl)
-  .then(function (response) {
-    if (response.status == 404){
+  .then((response) => {
+    if(response.status == 404){
         // tell user the city that they typed was not found
-        //TODO make this a modal
         alert("No city found.")
         return;
     }
-    else{
+    else {
         return response.json();
     }
   })
-  // go into returned object and pull city name using lat and lon, set  to variable
-  .then(function (data) {
-      // get city name from this api call
+  .then((data) => {
     cityName = data.name;
     // pass lat and lon for next api call
     getWeather(lat, lon);
     // add current location to search history
-    if (searchHistory.includes(cityName)){
+    if(searchHistory.includes(cityName)){
         // do nothing
     }
     else {
-        if (searchHistory.length >= 8){
+        if(searchHistory.length >= 8){
             // add item to beginning of saved array
             searchHistory.unshift(cityName);
             // remove last item from array
@@ -354,39 +347,36 @@ function useCurrentLocation(lat, lon){
   });
 };
 
-// click button on enter key in searchbox
-// Execute a function when the user presses a key on the keyboard while typing in the searchbox
+// click button when the user presses the enter key
 input.addEventListener("keyup", function(event) {
-  // Number 13 is the "Enter" key on the keyboard
-  if (event.key === 'Enter') {
-    // Cancel the default action, if needed
-    event.preventDefault();
-    // Trigger the button element with a click
-    searchBtn.click();
-    // reset input text on search
-    input.value = "";
-    //reset disable search button on search
-    searchBtn.disabled = true;
-  }
-  // they are typing something and did not hit enter
-  else {
-      if (input.value.trim() != "")
-    searchBtn.disabled = false;
-    else {
+
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        // Trigger the button element with a click
+        searchBtn.click();
+        input.value = "";
         searchBtn.disabled = true;
     }
-  }
-});
-// formats input to capitalize the first letter of each word in the city. i.e new york -> New York
-function capitalFormat (searchInput){
-    var cap = searchInput.split(" ");
-    for (let i = 0; i < cap.length; i++) {
-     cap[i] = cap[i][0].toUpperCase() + cap[i].substr(1);
+    else {
+        if (input.value.trim() != "") {
+            searchBtn.disabled = false;
+        }  
+        else {
+            searchBtn.disabled = true;
+        }
     }
-    return(cap.join(' '));
+});
+// capitalize the first letter of each word
+const capitalFormat = (searchInput) => {
+    let capitalize = searchInput.split(" ");
+
+    for (let i = 0; i < capitalize.length; i++) {
+     capitalize[i] = capitalize[i][0].toUpperCase() + capitalize[i].substr(1);
+    }
+    return(capitalize.join(' '));
 }
 
-function handleClear () {
+const handleClear = () => {
     // clear savedEvent array
     searchHistory = [];
     // save to local storage
@@ -394,7 +384,6 @@ function handleClear () {
     // refresh page to show changes immediately
     location.reload();
 };
-
 
 searchBtn.addEventListener("click", handleSearch)
 clearBtn.addEventListener("click", handleClear)
