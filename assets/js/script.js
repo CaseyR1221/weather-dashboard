@@ -97,7 +97,7 @@ const getCoordinates = (searchInput) => {
     let coordinateUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + searchInput + "&appid=" + key;
     // returns the coordinates of city
     fetch(coordinateUrl)
-    .then(function (response) {
+    .then((response) => {
         if (response.status == 404){
             // tell user the city that they typed was not found
             //TODO make this a modal
@@ -109,7 +109,7 @@ const getCoordinates = (searchInput) => {
         }
     })
     // go into returned object and pull the lat and long, set them to variables
-    .then(function (data) {
+    .then((data) => {
         lat = data.coord.lat;
         lon = data.coord.lon;
         cityName = data.name;
@@ -118,7 +118,7 @@ const getCoordinates = (searchInput) => {
         searchInput = capitalFormat(searchInput);
         // if the search is already in the search history, don't add it
         if (searchHistory.includes(searchInput)){
-            continue;
+            
         }
         // if city is not in the search history, push this search to the array
         else {
@@ -139,93 +139,88 @@ const getCoordinates = (searchInput) => {
     }); 
 };
 
-function getWeather (lat, lon){
-    var weatherUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&units=imperial" + "&exclude=alerts" + "&appid=" + key;
+const getWeather = (lat, lon) => {
+    let weatherUrl = "https://api.openweathermap.org/data/2.5/onecall?lat="
+     + lat + "&lon=" + lon + "&units=imperial" + "&exclude=alerts" + "&appid=" + key;
+
     fetch(weatherUrl)
-    .then(function (response) {
+    .then((response) => {
       if (response.status == 404){
-          alert("404 error, page not found, check your input.");
+        alert("404 error, page not found, check your input.");
       }
-      else{
-          return response.json();
+      else {
+        return response.json();
       }
-  
     })
-    // go into returned object with all the weather data
-    .then(function (data) {
+    .then((data) => {
       weatherInfo = data;
       fillCurrentData();
     });
 };
 
-function fillCurrentData (){
+const fillCurrentData = () => {
     // ****** CURRENT WEATHER ****** //
-    var cityWrap = document.querySelector("#city-wrapper");
-    var temp = document.querySelector("#temp");
-    var feels = document.querySelector("#feels-like");
-    var wind = document.querySelector("#wind");
-    var humidity = document.querySelector("#humidity");
-    var uvIndex = document.querySelector("#uv-index");
-    var cityNameEl = document.querySelector(".city");
-    var currentIconEl = document.querySelector("#current-icon");
-    var currentIconCode = weatherInfo.current.weather[0].icon;
-    var iconUrl = "https://openweathermap.org/img/wn/" + currentIconCode + "@2x.png";
-    // TODO ADD MAP
-    var mapEl = document.querySelector("#map");
-    var mapUrl = "https://tile.openweathermap.org/map/precipitation_new/1/1/1.png?appid=" + key;
-    // TODO make its own function > get current date using js
+    let cityWrap = document.querySelector("#city-wrapper");
+    let temp = document.querySelector("#temp");
+    let feels = document.querySelector("#feels-like");
+    let wind = document.querySelector("#wind");
+    let humidity = document.querySelector("#humidity");
+    let uvIndex = document.querySelector("#uv-index");
+    let cityNameEl = document.querySelector(".city");
+    let currentIconEl = document.querySelector("#current-icon");
+    let currentIconCode = weatherInfo.current.weather[0].icon;
+    let iconUrl = "https://openweathermap.org/img/wn/" + currentIconCode + "@2x.png";
     let currentDate = new Date();
     let cDay = currentDate.getDate();
     let cMonth = currentDate.getMonth() + 1;
     let cYear = currentDate.getFullYear();
-    // show all weather elements
+    // make all weather elements visible
     cityWrap.classList.remove("invisible");
-    // append city name to page
     cityNameEl.textContent = "Today in " + cityName;
-    // create span to fill with current date
-    var todayEl = document.createElement("span");
+
+    let todayEl = document.createElement("span");
+
     // use the date function in JS to set current date and append to page
     todayEl.innerHTML = " (" + cMonth + "/" + cDay + "/" + cYear + ")";
+
     cityNameEl.appendChild(todayEl);
+
     currentIconEl.setAttribute("src", iconUrl)
-    //TODO add map mapEl.setAttribute("src", iconUrl)
+
     // append current weather info to the page
-    var tempData = weatherInfo.current.temp;
-    // round temperature
+    let tempData = weatherInfo.current.temp;
     simpleTemp = Math.round(tempData);
     temp.textContent = simpleTemp + "\xB0 F";
     feels.textContent = Math.round(weatherInfo.current.feels_like) + "\xB0 F";
     wind.textContent = Math.round(weatherInfo.current.wind_speed) + " MPH";
     humidity.textContent = weatherInfo.current.humidity + " %";
     uvIndex.textContent = weatherInfo.current.uvi;
-    if (weatherInfo.current.uvi < 2){
-        uvIndex.setAttribute("class", "btn-success btn-gradient text-white")
 
+    if (weatherInfo.current.uvi < 2) {
+        uvIndex.setAttribute("class", "btn-success btn-gradient text-white")
     }
-    else if (weatherInfo.current.uvi > 2){
+    else if (weatherInfo.current.uvi > 2) {
         uvIndex.setAttribute("class", "bg-warning bg-gradient text-white")
     }
     else {
         uvIndex.setAttribute("class", "bg-danger bg-gradient text-white")
     }
-    // go fill the 5 day forecast next
+    // 5 day forecast 
     fillForecastData();
 }
 
-function fillForecastData (){
-    var forecastEL = document.querySelector(".forecast-wrapper");
-    // if we have already completed the for loop once and flipped the toggle switch
+const fillForecastData = () => {
+    let forecastEL = document.querySelector(".forecast-wrapper");
+
     if (toggle == true){
-        // reset 5-day forecast so they don't append over prev query
+        // reset 5-day forecast
         for (let i = 0; i < forecastEL.children.length; i++) {
-            // target acquired
-            //TODO refactor to use .children?
-            var dateEl = document.querySelector(".date");
-            var iconEl = document.querySelector(".icon");
-            var tempEl = document.querySelector(".temp");
-            var windEl = document.querySelector(".wind");
-            var humidityEl = document.querySelector(".humidity");
-            // delete, destroy, burn, remove
+            let dateEl = document.querySelector(".date");
+            let iconEl = document.querySelector(".icon");
+            let tempEl = document.querySelector(".temp");
+            let windEl = document.querySelector(".wind");
+            let humidityEl = document.querySelector(".humidity");
+
             dateEl.remove();
             iconEl.remove();
             tempEl.remove();
@@ -233,43 +228,42 @@ function fillForecastData (){
             humidityEl.remove();
         }
     }
-    for (let i = 0; i < forecastEL.children.length; i++) {
-        // create the elements to be displayed
-        var tempEl = document.createElement("div");
-        var windEl = document.createElement("div");
-        var humidityEl = document.createElement("div");
-        var iconEl = document.createElement("div");
-        var dateEl = document.createElement("div");
-        var iconCode = weatherInfo.daily[i+1].weather[0].icon;
-        var unixDate = weatherInfo.daily[i+1].dt;
-        var iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png";
-        // assign classes
+
+    for(let i = 0; i < forecastEL.children.length; i++) {
+        let tempEl = document.createElement("div");
+        let windEl = document.createElement("div");
+        let humidityEl = document.createElement("div");
+        let iconEl = document.createElement("div");
+        let dateEl = document.createElement("div");
+        let iconCode = weatherInfo.daily[i+1].weather[0].icon;
+        let unixDate = weatherInfo.daily[i+1].dt;
+        let iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png";
+
         dateEl.setAttribute("class", "date fw-bold");
         iconEl.setAttribute("class", "icon");
         tempEl.setAttribute("class", "temp");
         windEl.setAttribute("class", "wind");
         humidityEl.setAttribute("class", "humidity");
-        // assign values
+
         if (i == 0){
             dateEl.innerText = "Tomorrow ";
-
         }
-        else{
-        dateEl.innerText = timeConverter(unixDate);
+        else {
+            dateEl.innerText = timeConverter(unixDate);
         }
 
         iconEl.innerHTML = '<img src=' + iconUrl + ">";
         tempEl.innerText = "Temp: " + Math.round(weatherInfo.daily[i+1].temp.day) + "\xB0 F";
         windEl.innerText = "Wind: " + Math.round(weatherInfo.daily[i+1].wind_speed) + " MPH";
         humidityEl.innerText = "Humidity: " + Math.round(weatherInfo.daily[i+1].humidity) + " %";
-        // append to page
+        // make visible and append to page
         forecastEL.classList.remove("invisible");
         forecastEL.children[i].appendChild(dateEl);
         forecastEL.children[i].appendChild(iconEl);
         forecastEL.children[i].appendChild(tempEl);
         forecastEL.children[i].appendChild(windEl);
         forecastEL.children[i].appendChild(humidityEl);
-        // toggle this switch to true which signals that the for loop has been run before
+        // signals that the for loop has been run 
         toggle = true;
     }
 };
